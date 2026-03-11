@@ -10,17 +10,11 @@ from app.auth.security import hash_password, verify_password
 from app.auth.jwt import create_access_token
 
 
-router = APIRouter(
-    prefix="/auth",
-    tags=["Auth"]
-)
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/register")
-async def register(
-    data: RegisterRequest,
-    db: AsyncSession = Depends(get_db)
-):
+async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
     existing = await UserDAO.find_one(db, username=data.username)
 
@@ -43,8 +37,6 @@ async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):
     if not verify_password(data.password, user.password_hash):
         raise HTTPException(401)
 
-    token = create_access_token(
-        {"sub": str(user.id)}
-    )
+    token = create_access_token({"sub": str(user.id)})
 
     return {"access_token": token}

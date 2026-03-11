@@ -3,10 +3,7 @@ import hashlib
 from passlib.context import CryptContext
 
 
-pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto"
-)
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def _normalize_password(password: str) -> str:
