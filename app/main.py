@@ -28,3 +28,6 @@ app.include_router(admin_modules.router)
 app.include_router(admin_lessons.router)
 app.include_router(admin_tasks.router)
 app.include_router(admin_attempts.router)
+
+#alembic revision --autogenerate -m "Initial migration"
+#alembic upgrade head
