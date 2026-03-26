@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.models.models import Attempt
+from app.models.models import Attempt, Currency
 from app.core.db import get_db
 from app.core.dependencies import require_role
+from app.schemas.admin import ReviewAttemptRequest
 
 router = APIRouter(prefix="/admin/attempts")
 
@@ -13,15 +14,19 @@ def get_pending(db: Session = Depends(get_db), admin=Depends(require_role(["admi
 
 
 @router.post("/{id}/review")
-def review(id: int, is_correct: bool, db: Session = Depends(get_db), admin=Depends(require_role(["admin"]))):
+def review(
+    id: int,
+    data: ReviewAttemptRequest,
+    db: Session = Depends(get_db),
+    admin=Depends(require_role(["admin"]))
+):
     attempt = db.get(Attempt, id)
 
-    attempt.is_correct = is_correct
+    attempt.is_correct = data.is_correct
     attempt.status = "checked"
     attempt.reviewer_id = admin.id
 
-    if is_correct:
-        from app.models.models import Currency
+    if data.is_correct:
         cur = db.get(Currency, attempt.user_id)
         if not cur:
             cur = Currency(user_id=attempt.user_id, xp=0)

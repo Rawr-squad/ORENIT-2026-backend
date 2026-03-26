@@ -31,4 +31,3 @@ app.include_router(admin_attempts.router)
 
 #alembic revision --autogenerate -m "Initial migration"
 #alembic upgrade head
-
