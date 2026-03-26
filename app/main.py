@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import users, auth
+from app.core.db import Base, engine
+from app.routers import auth, courses, lessons, tasks, parent_child, \
+    admin_courses, admin_modules, admin_lessons, admin_tasks, admin_attempts, progress
 
-app = FastAPI()
+app = FastAPI(title="Edu Platform")
 
 app.add_middleware(
     CORSMiddleware,
@@ -14,11 +16,15 @@ app.add_middleware(
 )
 
 
-
-
-app.include_router(users.router)
+# routers
 app.include_router(auth.router)
-
-# docker compose up --build
-# alembic revision --autogenerate -m ".."
-# alembic upgrade head
+app.include_router(courses.router)
+app.include_router(lessons.router)
+app.include_router(tasks.router)
+app.include_router(parent_child.router)
+app.include_router(progress.router)
+app.include_router(admin_courses.router)
+app.include_router(admin_modules.router)
+app.include_router(admin_lessons.router)
+app.include_router(admin_tasks.router)
+app.include_router(admin_attempts.router)

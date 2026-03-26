@@ -6,15 +6,18 @@ services:
     container_name: db
     env_file:
       - .env
+    environment:
+      - POSTGRES_DB=edu  # Явно указываем имя БД
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       retries: 10
       timeout: 5s
+      start_period: 10s
 
   backend:
     build: .
@@ -26,15 +29,18 @@ services:
       - .env
     ports:
       - "8000:8000"
-    command: bash -c "
-      echo 'Waiting for Postgres...';
-      sleep 3;
-      alembic upgrade head;
-      uvicorn app.main:app --host 0.0.0.0 --port 8000 "
+    command: >
+      sh -c "
+        echo 'Waiting for Postgres...';
+        sleep 3;
+        alembic upgrade head;
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "
     volumes:
       - .:/app
     environment:
       - PYTHONUNBUFFERED=1
+    restart: unless-stopped
 
 volumes:
   postgres_data:
