@@ -1,12 +1,12 @@
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 
 
 class CommentCreate(BaseModel):
-    lesson_id: int
-    content: constr(min_length=1, max_length=1000)
-    parent_id: Optional[int] = None
+    lesson_id: int = Field(gt=0)
+    content: str = Field(min_length=1, max_length=1000)
+    parent_id: Optional[int] = Field(default=None, gt=0)
 
 
 class CommentResponse(BaseModel):

@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+
 
 class ParentLinkRequest(BaseModel):
-    parent_email: str
+    parent_email: EmailStr
