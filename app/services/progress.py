@@ -35,26 +35,25 @@ class ProgressService:
             return False
 
         for task in tasks:
-
+            # Проверяем, есть ли ХОТЯ БЫ ОДНА успешная попытка
             if task.type in [TaskType.quiz, TaskType.input]:
-                attempt = self.db.query(Attempt).filter(
+                successful_attempt = self.db.query(Attempt).filter(
                     Attempt.user_id == user_id,
                     Attempt.task_id == task.id,
                     Attempt.is_correct == True
                 ).first()
 
-                if not attempt:
+                if not successful_attempt:
                     return False
 
             elif task.type == TaskType.code:
-                attempt = self.db.query(Attempt).filter(
+                successful_attempt = self.db.query(Attempt).filter(
                     Attempt.user_id == user_id,
                     Attempt.task_id == task.id,
                     Attempt.status == AttemptStatus.checked,
                     Attempt.is_correct == True
                 ).first()
-
-                if not attempt:
+                if not successful_attempt:
                     return False
 
         # 🔥 если дошли сюда — все задачи выполнены
@@ -64,7 +63,19 @@ class ProgressService:
         ).first()
 
         if not progress:
-            raise HTTPException(400, "Lesson not started")
+            # Автоматически создаем прогресс, если его нет (на случай, если не вызвали start_lesson)
+            progress = Progress(
+                user_id=user_id,
+                lesson_id=lesson_id,
+                status=ProgressStatus.completed
+            )
+            self.db.add(progress)
+            self.db.commit()
+
+            from app.services.achievement import AchievementService
+            AchievementService(self.db).check_achievements(user_id)
+
+            return True
 
         if progress.status != ProgressStatus.completed:
             progress.status = ProgressStatus.completed
@@ -74,7 +85,6 @@ class ProgressService:
             AchievementService(self.db).check_achievements(user_id)
 
         return True
-
     # 📊 агрегированный прогресс
     def get_progress(self, user_id: int):
         total_lessons = self.db.query(Lesson).count()

@@ -39,6 +39,7 @@ def review(
         cur.xp += 20
 
         task = db.get(Task, attempt.task_id)
+        task.coins = task.coins if task.coins is not None else 0
 
         cur.coins += task.coins
 

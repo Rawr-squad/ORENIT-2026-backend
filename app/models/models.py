@@ -40,6 +40,7 @@ class User(Base):
     nickname_color = Column(String, nullable=True)  # HEX
     status_title = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    last_reward_at = Column(DateTime, nullable=True)
 
 class NicknameColor(Base):
     __tablename__ = "nickname_colors"

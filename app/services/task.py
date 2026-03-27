@@ -33,6 +33,8 @@ class TaskService:
                 currency = Currency(user_id=user.id, xp=0, coins=0)
                 self.db.add(currency)
 
+            task.coins = task.coins if task.coins is not None else 0
+
             if is_correct:
                 currency.coins += task.coins
 
