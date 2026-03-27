@@ -4,6 +4,7 @@ from app.models.models import Attempt, Currency, Task
 from app.core.db import get_db
 from app.core.dependencies import require_role
 from app.schemas.admin import ReviewAttemptRequest
+from app.services.achievement import AchievementService
 from app.services.progress import ProgressService
 
 router = APIRouter(prefix="/admin/attempts")
@@ -39,10 +40,14 @@ def review(
 
         task = db.get(Task, attempt.task_id)
 
+        cur.coins += task.coins
+
         ProgressService(db).check_lesson_completed(
             attempt.user_id,
             task.lesson_id
         )
+
+        AchievementService(db).check_achievements(attempt.user_id)
 
     db.commit()
     return attempt

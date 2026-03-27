@@ -1,4 +1,5 @@
-from app.models.models import Attempt, Task
+from app.models.models import Attempt, Task, Currency
+from app.services.achievement import AchievementService
 from app.services.progress import ProgressService
 
 
@@ -14,6 +15,14 @@ class TaskService:
 
         if task.type in ["quiz", "input"]:
             is_correct = answer == task.correct_answer
+
+            # 💰 КОИНЫ
+            currency = self.db.get(Currency, user.id)
+            if not currency:
+                currency = Currency(user_id=user.id, xp=0, coins=0)
+                self.db.add(currency)
+
+            currency.coins += task.coins
 
             attempt = Attempt(
                 user_id=user.id,
@@ -36,6 +45,7 @@ class TaskService:
                 task.lesson_id
             )
 
+            AchievementService(self.db).check_achievements(user.id)
             return attempt
 
         else:

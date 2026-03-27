@@ -6,7 +6,7 @@ class TaskCreate(BaseModel):
     type: Literal["quiz", "input", "code"]
     question: str
     correct_answer: Optional[str]
-    order: int
+    coins : int
 
 
 class TaskSubmit(BaseModel):

@@ -18,6 +18,9 @@ class TaskType(str, enum.Enum):
     input = "input"
     code = "code"
 
+class AchievementType(str, enum.Enum):
+    tasks_completed = "tasks_completed"
+    lessons_completed = "lessons_completed"
 
 class AttemptStatus(str, enum.Enum):
     pending = "pending"
@@ -39,6 +42,24 @@ class ParentChild(Base):
     id = Column(Integer, primary_key=True)
     parent_id = Column(Integer, ForeignKey("users.id"))
     child_id = Column(Integer, ForeignKey("users.id"))
+
+class Achievement(Base):
+    __tablename__ = "achievements"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String, unique=True)
+    description = Column(String)
+
+    type = Column(Enum(AchievementType))
+    condition_value = Column(Integer)  # например 3, 5, 10
+
+    reward_coins = Column(Integer)
+
+class UserAchievement(Base):
+    __tablename__ = "user_achievements"
+
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    achievement_id = Column(Integer, ForeignKey("achievements.id"), primary_key=True)
 
 
 class Course(Base):
@@ -72,7 +93,7 @@ class Task(Base):
     type = Column(Enum(TaskType))
     question = Column(Text)
     correct_answer = Column(Text, nullable=True)
-    order = Column(Integer)
+    coins = Column(Integer, default=0)
 
 
 class Attempt(Base):

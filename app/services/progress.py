@@ -70,6 +70,9 @@ class ProgressService:
             progress.status = ProgressStatus.completed
             self.db.commit()
 
+            from app.services.achievement import AchievementService
+            AchievementService(self.db).check_achievements(user_id)
+
         return True
 
     # 📊 агрегированный прогресс
