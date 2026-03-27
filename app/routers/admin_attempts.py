@@ -50,4 +50,5 @@ def review(
         AchievementService(db).check_achievements(attempt.user_id)
 
     db.commit()
+    db.refresh(attempt)
     return attempt

@@ -22,6 +22,7 @@ def create_lesson(data: LessonCreate, db=Depends(get_db), admin=Depends(require_
     lesson = Lesson(**data.model_dump())
     db.add(lesson)
     db.commit()
+    db.refresh(lesson)
     return lesson
 
 
@@ -45,6 +46,7 @@ def update_lesson(id: int, data: LessonCreate, db=Depends(get_db), admin=Depends
         setattr(lesson, k, v)
 
     db.commit()
+    db.refresh(lesson)
     return lesson
 
 

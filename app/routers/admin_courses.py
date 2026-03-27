@@ -21,6 +21,7 @@ def create_course(
     course = Course(**data.model_dump())
     db.add(course)
     db.commit()
+    db.refresh(course)
     return course
 
 
@@ -39,6 +40,7 @@ def update_course(id: int, data: CourseCreate, db=Depends(get_db), admin=Depends
     course.description = data.description
 
     db.commit()
+    db.refresh(course)
     return course
 
 

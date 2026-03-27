@@ -1,3 +1,5 @@
+from fastapi import HTTPException
+
 from app.models.models import Attempt, Task, Currency
 from app.services.achievement import AchievementService
 from app.services.progress import ProgressService
@@ -11,7 +13,16 @@ class TaskService:
         task = self.db.get(Task, task_id)
 
         if not task:
-            raise Exception("Task not found")
+            raise HTTPException(404, "Task not found")
+
+        existing_attempt = self.db.query(Attempt).filter(
+            Attempt.user_id == user.id,
+            Attempt.task_id == task_id,
+            Attempt.is_correct == True  # Только успешные попытки
+        ).first()
+
+        if existing_attempt:
+            raise HTTPException(400, "Task already completed")
 
         if task.type in ["quiz", "input"]:
             is_correct = answer == task.correct_answer

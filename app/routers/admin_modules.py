@@ -14,9 +14,18 @@ def create_module(
     db: Session = Depends(get_db),
     admin=Depends(require_role(["admin"]))
 ):
+    exists = db.query(Module).filter(
+        Module.course_id == data.course_id,
+        Module.order == data.order
+    ).first()
+
+    if exists:
+        raise HTTPException(400, "Nodule order already exists in module")
+
     module = Module(**data.model_dump())
     db.add(module)
     db.commit()
+    db.refresh(module)
     return module
 
 @router.put("/{id}")
@@ -26,10 +35,19 @@ def update_module(id: int, data: ModuleCreate, db=Depends(get_db), admin=Depends
     if not module:
         raise HTTPException(404, "Module not found")
 
+    exists = db.query(Module).filter(
+        Module.course_id == data.course_id,
+        Module.order == data.order
+    ).first()
+
+    if exists:
+        raise HTTPException(400, "Nodule order already exists in module")
+
     module.title = data.title
     module.order = data.order
 
     db.commit()
+    db.refresh(module)
     return module
 
 

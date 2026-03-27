@@ -16,7 +16,7 @@ class ProgressService:
         ).first()
 
         if existing:
-            raise Exception("Lesson already started")
+            raise HTTPException(400, "Lesson already started")
 
         progress = Progress(
             user_id=user_id,

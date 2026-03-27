@@ -19,6 +19,7 @@ def create_task(data: TaskCreate, db=Depends(get_db), admin=Depends(require_role
     task = Task(**data.model_dump())
     db.add(task)
     db.commit()
+    db.refresh(task)
     return task
 
 
@@ -33,6 +34,7 @@ def update_task(id: int, data: TaskCreate, db=Depends(get_db), admin=Depends(req
         setattr(task, k, v)
 
     db.commit()
+    db.refresh(task)
     return task
 
 

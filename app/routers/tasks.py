@@ -14,4 +14,7 @@ def submit(
     user=Depends(get_current_user),
     db=Depends(get_db)
 ):
-    return TaskService(db).submit(user, task_id, data.answer)
+    task = TaskService(db).submit(user, task_id, data.answer)
+    db.refresh(task)
+
+    return task

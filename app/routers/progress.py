@@ -16,8 +16,10 @@ def start_lesson(
     db: Session = Depends(get_db)
 ):
 
+    lesson = ProgressService(db).start_lesson(user.id, data.lesson_id)
+    db.refresh(lesson)
 
-    return ProgressService(db).start_lesson(user.id, data.lesson_id)
+    return lesson
 
 
 @router.get("/me")
