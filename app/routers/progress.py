@@ -46,7 +46,7 @@ def my_progress(user=Depends(get_current_user), db: Session = Depends(get_db)):
         "user_id": target_user_id,
         "nickname": target_user.nickname,
         "xp": xp.xp if xp else 0,
-        "coins" : xp.coins if xp else 0
+        "coins" : xp.coins if xp else 0,
         **stats
     }
 
