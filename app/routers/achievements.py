@@ -24,8 +24,8 @@ def get_one(id: int, db: Session = Depends(get_db)):
         raise Exception("Not found")
     return ach
 
-@router.post('/once')
-def get_all(db=Depends(get_db)):
+@router.post('/seed')
+def create_achievements(db=Depends(get_db)):
     achievements = [
         ("First Steps", "Solve 3 tasks", "tasks_completed", 3, 10),
         ("Getting Better", "Solve 5 tasks", "tasks_completed", 5, 20),

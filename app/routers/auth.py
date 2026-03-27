@@ -20,6 +20,4 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
 
 @router.get("/me")
 def about_user(user = Depends(get_current_user)):
-    return {"nickname" : user.nickname,
-            "email" : user.email,
-            "role" : user.role}
+    return user

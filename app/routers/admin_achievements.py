@@ -9,17 +9,6 @@ router = APIRouter(prefix="/admin/achievements")
 
 
 @router.post("")
-def create_module(
-    data: ModuleCreate,
-    db: Session = Depends(get_db),
-    admin=Depends(require_role(["admin"]))
-):
-    module = Module(**data.model_dump())
-    db.add(module)
-    db.commit()
-    return module
-
-@router.post("/admin/achievements")
 def create_achievement(
     title: str,
     description: str,

@@ -34,7 +34,24 @@ class User(Base):
     email = Column(String, unique=True)
     password_hash = Column(String)
     role = Column(Enum(Role))
+    nickname_color = Column(String, nullable=True)  # HEX
+    status_title = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class NicknameColor(Base):
+    __tablename__ = "nickname_colors"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
+    hex_code = Column(String)  # #FF0000
+    price = Column(Integer)
+
+class UserStatus(Base):
+    __tablename__ = "user_statuses"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String, unique=True)
+    price = Column(Integer)
 
 
 class ParentChild(Base):
