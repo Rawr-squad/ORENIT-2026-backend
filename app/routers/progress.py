@@ -25,7 +25,6 @@ def start_lesson(
 @router.get("/me")
 def my_progress(user=Depends(get_current_user), db: Session = Depends(get_db)):
 
-    # 👇 если родитель → берём ребёнка
     if user.role == "parent":
         link = db.query(ParentChild).filter_by(parent_id=user.id).first()
 

@@ -13,7 +13,6 @@ class CommentService:
         if not lesson:
             raise HTTPException(404, "Lesson not found")
 
-        # 🔒 если это reply
         if data.parent_id:
             parent = self.db.get(Comment, data.parent_id)
 
@@ -46,7 +45,6 @@ class CommentService:
             for u in self.db.query(User).all()
         }
 
-        # 🌳 строим дерево
         tree = {}
         result = []
 

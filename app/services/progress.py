@@ -8,7 +8,6 @@ class ProgressService:
     def __init__(self, db: Session):
         self.db = db
 
-    # 🚀 старт урока
     def start_lesson(self, user_id: int, lesson_id: int):
         existing = self.db.query(Progress).filter_by(
             user_id=user_id,
@@ -56,7 +55,6 @@ class ProgressService:
                 if not successful_attempt:
                     return False
 
-        # 🔥 если дошли сюда — все задачи выполнены
         progress = self.db.query(Progress).filter_by(
             user_id=user_id,
             lesson_id=lesson_id
@@ -85,7 +83,6 @@ class ProgressService:
             AchievementService(self.db).check_achievements(user_id)
 
         return True
-    # 📊 агрегированный прогресс
     def get_progress(self, user_id: int):
         total_lessons = self.db.query(Lesson).count()
 

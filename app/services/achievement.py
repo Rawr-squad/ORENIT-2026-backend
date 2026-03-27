@@ -57,7 +57,6 @@ class AchievementService:
 
         self.db.add(ua)
 
-        # 💰 награда
         currency = self.db.get(Currency, user_id)
         if not currency:
             currency = Currency(user_id=user_id, xp=0, coins=0)

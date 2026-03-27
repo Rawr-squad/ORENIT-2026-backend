@@ -27,7 +27,6 @@ class TaskService:
         if task.type in ["quiz", "input"]:
             is_correct = answer == task.correct_answer
 
-            # 💰 КОИНЫ
             currency = self.db.get(Currency, user.id)
             if not currency:
                 currency = Currency(user_id=user.id, xp=0, coins=0)
@@ -53,7 +52,6 @@ class TaskService:
 
             self.db.commit()
 
-            # 🔥 проверяем урок
             ProgressService(self.db).check_lesson_completed(
                 user.id,
                 task.lesson_id

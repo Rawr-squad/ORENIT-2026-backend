@@ -7,7 +7,6 @@ class ShopService:
     def __init__(self, db):
         self.db = db
 
-    # 🎨 покупка цвета
     def buy_color(self, user_id: int, color_id: int):
         user = self.db.get(User, user_id)
         color = self.db.get(NicknameColor, color_id)
@@ -34,7 +33,6 @@ class ShopService:
             "coins_left": currency.coins
         }
 
-    # 🏆 покупка статуса
     def buy_status(self, user_id: int, status_id: int):
         user = self.db.get(User, user_id)
         status = self.db.get(UserStatus, status_id)
