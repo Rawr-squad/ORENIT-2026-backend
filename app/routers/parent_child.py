@@ -24,6 +24,9 @@ def link(
         child_id=user.id
     ).first()
 
+    if not parent:
+        raise HTTPException(404, "Parent not found")
+
     if existing:
         raise HTTPException(400, "Already linked")
 
