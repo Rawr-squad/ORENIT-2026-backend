@@ -5,7 +5,7 @@ from app.core.db import Base, engine
 from app.routers import auth, courses, lessons, tasks, parent_child, \
     admin_courses, admin_modules, admin_lessons, admin_tasks, \
     admin_attempts, progress, admin_achievements, achievements, \
-    shop, admin_shop
+    shop, admin_shop, modules
 
 app = FastAPI(title="Edu Platform")
 
@@ -34,6 +34,7 @@ app.include_router(admin_achievements.router)
 app.include_router(achievements.router)
 app.include_router(admin_shop.router)
 app.include_router(shop.router)
+app.include_router(modules.router)
 
 #alembic revision --autogenerate -m "Initial migration"
 #alembic upgrade head
