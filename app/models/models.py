@@ -1,6 +1,9 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean, DateTime, Enum
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean, DateTime, Enum, func
 from datetime import datetime
 import enum
+
+from sqlalchemy.orm import relationship
+
 from app.core.db import Base
 
 
@@ -101,6 +104,23 @@ class Lesson(Base):
     title = Column(String)
     theory_content = Column(Text)
     order = Column(Integer)
+
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id = Column(Integer, primary_key=True)
+
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    lesson_id = Column(Integer, ForeignKey("lessons.id"), nullable=False)
+
+    parent_id = Column(Integer, ForeignKey("comments.id"), nullable=True)
+
+    content = Column(String, nullable=False)
+
+    created_at = Column(DateTime, server_default=func.now())
+
+    # связи (опционально)
+    parent = relationship("Comment", remote_side=[id])
 
 
 class Task(Base):
