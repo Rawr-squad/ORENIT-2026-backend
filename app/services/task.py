@@ -1,4 +1,5 @@
 from app.models.models import Attempt, Task
+from app.services.progress import ProgressService
 
 
 class TaskService:
@@ -8,21 +9,34 @@ class TaskService:
     def submit(self, user, task_id, answer):
         task = self.db.get(Task, task_id)
 
+        if not task:
+            raise Exception("Task not found")
+
         if task.type in ["quiz", "input"]:
-            correct = answer == task.correct_answer
+            is_correct = answer == task.correct_answer
 
             attempt = Attempt(
                 user_id=user.id,
                 task_id=task_id,
                 answer=answer,
-                is_correct=correct,
-                status="checked",
+                is_correct=is_correct,
+                status="checked"
             )
 
             self.db.add(attempt)
 
-            if correct:
+            if is_correct:
                 self._add_xp(user.id, 10)
+
+            self.db.commit()
+
+            # 🔥 проверяем урок
+            ProgressService(self.db).check_lesson_completed(
+                user.id,
+                task.lesson_id
+            )
+
+            return attempt
 
         else:
             attempt = Attempt(
@@ -32,9 +46,8 @@ class TaskService:
                 status="pending",
             )
             self.db.add(attempt)
-
-        self.db.commit()
-        return attempt
+            self.db.commit()
+            return attempt
 
     def _add_xp(self, user_id, xp):
         from app.models.models import Currency

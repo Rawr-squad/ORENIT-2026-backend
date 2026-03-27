@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.core.dependencies import require_role
@@ -14,6 +14,10 @@ def create_course(
     db: Session = Depends(get_db),
     admin=Depends(require_role(["admin"]))
 ):
+    existing = db.query(Course).filter_by(title=data.title).first()
+    if existing:
+        raise HTTPException(400, "Course already exists")
+
     course = Course(**data.model_dump())
     db.add(course)
     db.commit()

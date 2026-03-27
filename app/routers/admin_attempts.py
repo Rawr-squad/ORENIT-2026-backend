@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.models.models import Attempt, Currency
+from app.models.models import Attempt, Currency, Task
 from app.core.db import get_db
 from app.core.dependencies import require_role
 from app.schemas.admin import ReviewAttemptRequest
+from app.services.progress import ProgressService
 
 router = APIRouter(prefix="/admin/attempts")
 
@@ -22,6 +23,9 @@ def review(
 ):
     attempt = db.get(Attempt, id)
 
+    if attempt.status != "pending":
+        raise HTTPException(400, "Already reviewed")
+
     attempt.is_correct = data.is_correct
     attempt.status = "checked"
     attempt.reviewer_id = admin.id
@@ -32,6 +36,13 @@ def review(
             cur = Currency(user_id=attempt.user_id, xp=0)
             db.add(cur)
         cur.xp += 20
+
+        task = db.get(Task, attempt.task_id)
+
+        ProgressService(db).check_lesson_completed(
+            attempt.user_id,
+            task.lesson_id
+        )
 
     db.commit()
     return attempt

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.core.dependencies import get_current_user
@@ -18,6 +18,14 @@ def link(
         email=data.parent_email,
         role="parent"
     ).first()
+
+    existing = db.query(ParentChild).filter_by(
+        parent_id=parent.id,
+        child_id=user.id
+    ).first()
+
+    if existing:
+        raise HTTPException(400, "Already linked")
 
     rel = ParentChild(parent_id=parent.id, child_id=user.id)
     db.add(rel)

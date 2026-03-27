@@ -9,6 +9,9 @@ class Role(str, enum.Enum):
     parent = "parent"
     admin = "admin"
 
+class ProgressStatus(str, enum.Enum):
+    started = "started"
+    completed = "completed"
 
 class TaskType(str, enum.Enum):
     quiz = "quiz"
@@ -86,11 +89,11 @@ class Attempt(Base):
 
 class Progress(Base):
     __tablename__ = "progress"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer)
-    lesson_id = Column(Integer)
-    completed = Column(Boolean, default=False)
 
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    lesson_id = Column(Integer, ForeignKey("lessons.id"))
+    status = Column(Enum(ProgressStatus), default=ProgressStatus.started)
 
 class Currency(Base):
     __tablename__ = "currency"
