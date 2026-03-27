@@ -693,12 +693,12 @@
   ],
   "variable": [
     {
-      "id": "530bbdd9-38d3-441e-92dc-61f171c18dc2",
+      "id": "00561c88-a1c9-4c82-b381-765bffe6e784",
       "key": "id",
       "value": "1"
     },
     {
-      "id": "57b5ecc1-1ffd-4eb5-a9a4-fa78c5251c5d",
+      "id": "b075623d-c22b-4500-a2fb-f51b3d261cb0",
       "key": "base_url",
       "value": "https://template.postman-echo.com"
     }

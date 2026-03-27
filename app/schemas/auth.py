@@ -1,10 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Literal
 
 
 class RegisterRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str
+    nickname : str
     role: Literal["student", "parent"]
 
 

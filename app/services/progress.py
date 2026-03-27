@@ -1,5 +1,6 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from app.models.models import Progress, Lesson, Task, Attempt, ProgressStatus
+from app.models.models import Progress, Lesson, Task, Attempt, ProgressStatus, AttemptStatus, TaskType
 
 
 class ProgressService:
@@ -27,26 +28,45 @@ class ProgressService:
         self.db.commit()
         return progress
 
-    # ✅ проверка завершения урока
     def check_lesson_completed(self, user_id: int, lesson_id: int):
         tasks = self.db.query(Task).filter_by(lesson_id=lesson_id).all()
 
+        if not tasks:
+            return False
+
         for task in tasks:
-            attempt = self.db.query(Attempt).filter_by(
-                user_id=user_id,
-                task_id=task.id,
-                is_correct=True
-            ).first()
 
-            if not attempt:
-                return False
+            if task.type in [TaskType.quiz, TaskType.input]:
+                attempt = self.db.query(Attempt).filter(
+                    Attempt.user_id == user_id,
+                    Attempt.task_id == task.id,
+                    Attempt.is_correct == True
+                ).first()
 
+                if not attempt:
+                    return False
+
+            elif task.type == TaskType.code:
+                attempt = self.db.query(Attempt).filter(
+                    Attempt.user_id == user_id,
+                    Attempt.task_id == task.id,
+                    Attempt.status == AttemptStatus.checked,
+                    Attempt.is_correct == True
+                ).first()
+
+                if not attempt:
+                    return False
+
+        # 🔥 если дошли сюда — все задачи выполнены
         progress = self.db.query(Progress).filter_by(
             user_id=user_id,
             lesson_id=lesson_id
         ).first()
 
-        if progress:
+        if not progress:
+            raise HTTPException(400, "Lesson not started")
+
+        if progress.status != ProgressStatus.completed:
             progress.status = ProgressStatus.completed
             self.db.commit()
 

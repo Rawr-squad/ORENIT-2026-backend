@@ -25,15 +25,31 @@ def create_course(
 
 
 @router.put("/{id}")
-def update_course(
-    id: int,
-    data: CourseCreate,
-    db: Session = Depends(get_db),
-    admin=Depends(require_role(["admin"]))
-):
+def update_course(id: int, data: CourseCreate, db=Depends(get_db), admin=Depends(require_role(["admin"]))):
     course = db.get(Course, id)
-    for k, v in data.model_dump().items():
-        setattr(course, k, v)
+
+    if not course:
+        raise HTTPException(404, "Course not found")
+
+    exists = db.query(Course).filter(Course.title == data.title, Course.id != id).first()
+    if exists:
+        raise HTTPException(400, "Course with this title already exists")
+
+    course.title = data.title
+    course.description = data.description
 
     db.commit()
     return course
+
+
+@router.delete("/{id}")
+def delete_course(id: int, db=Depends(get_db), admin=Depends(require_role(["admin"]))):
+    course = db.get(Course, id)
+
+    if not course:
+        raise HTTPException(404, "Course not found")
+
+    db.delete(course)
+    db.commit()
+
+    return {"message": "Course deleted"}

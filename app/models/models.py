@@ -27,6 +27,7 @@ class AttemptStatus(str, enum.Enum):
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
+    nickname = Column(String, nullable=False)
     email = Column(String, unique=True)
     password_hash = Column(String)
     role = Column(Enum(Role))
