@@ -7,13 +7,15 @@ services:
     env_file:
       - .env
     environment:
-      - POSTGRES_DB=edu  # Явно указываем имя БД
+      - POSTGRES_DB=edu  # База создастся автоматически при старте
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d edu"]
       interval: 5s
       retries: 10
       timeout: 5s
@@ -33,7 +35,6 @@ services:
       sh -c "
         echo 'Waiting for Postgres...';
         sleep 3;
-        alembic upgrade head;
         uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
       "
     volumes:
