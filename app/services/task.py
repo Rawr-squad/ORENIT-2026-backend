@@ -18,14 +18,32 @@ class TaskService:
         existing_attempt = self.db.query(Attempt).filter(
             Attempt.user_id == user.id,
             Attempt.task_id == task_id,
-            Attempt.is_correct == True  # Только успешные попытки
+            Attempt.is_correct == True
         ).first()
 
         if existing_attempt:
             raise HTTPException(400, "Task already completed")
 
-        if task.type in ["quiz", "input"]:
-            is_correct = answer == task.correct_answer
+        answer = answer.strip()
+
+        if task.type in ["input", "quiz"]:
+
+            # --- QUIZ логика ---
+            if task.type == "quiz":
+                if not task.options:
+                    raise HTTPException(400, "Quiz has no options")
+
+                # нормализация options
+                options = [opt.strip() for opt in task.options]
+
+                if answer not in options:
+                    raise HTTPException(400, "Answer not in options")
+
+                is_correct = answer == task.correct_answer
+
+            # --- INPUT логика ---
+            else:
+                is_correct = answer == task.correct_answer
 
             currency = self.db.get(Currency, user.id)
             if not currency:
@@ -76,7 +94,7 @@ class TaskService:
 
         cur = self.db.get(Currency, user_id)
         if not cur:
-            cur = Currency(user_id=user_id, xp=0)
+            cur = Currency(user_id=user_id, xp=0, coins=0)
             self.db.add(cur)
 
         cur.xp += xp

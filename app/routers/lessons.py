@@ -26,7 +26,7 @@ def get_lesson(
     lesson_status = progress.status if progress else "not_started"
 
     tasks = db.query(Task).filter_by(lesson_id=lesson.id).options(
-        load_only(Task.id, Task.type, Task.question, Task.coins)
+        load_only(Task.id, Task.type, Task.question, Task.coins, Task.options)
     ).all()
 
     return {
