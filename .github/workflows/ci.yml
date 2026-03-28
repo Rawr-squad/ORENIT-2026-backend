@@ -25,7 +25,7 @@ jobs:
           --health-retries=5
 
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/test_db
       SECRET: testsecret
 
     steps:
@@ -37,9 +37,25 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Add db to hosts
         run: |
-          pip install -r requirements.txt
-          pip install psycopg2-binary
+          # Добавляем запись в /etc/hosts, чтобы db указывал на localhost
+          echo "127.0.0.1 db" | sudo tee -a /etc/hosts
+          # Проверяем, что теперь db резолвится
+          ping -c 1 db
+
+      - name: Create .env file
+        run: |
+          cat << EOF > .env
+          DATABASE_URL=$DATABASE_URL
+          SECRET=$SECRET
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_DB=test_db
+          EOF
+          cat .env
 
       - name: Wait for PostgreSQL
         run: |
@@ -52,32 +68,11 @@ jobs:
             sleep 5
           done
 
-      - name: Create .env file for CI
-        run: |
-          cat << EOF > .env
-          DATABASE_URL=postgresql://postgres:postgres@localhost:5432/test_db
-          SECRET=$SECRET
-          POSTGRES_USER=postgres
-          POSTGRES_PASSWORD=postgres
-          POSTGRES_DB=test_db
-          EOF
-          
-          # Проверяем содержимое .env
-          cat .env
-
       - name: Initialize alembic if needed
         run: |
           if [ ! -d "alembic" ] && [ ! -d "migrations" ]; then
-            alembic init -t async migrations
+            alembic init migrations
           fi
 
       - name: Run migrations
-        run: |
-          # Выводим DATABASE_URL для отладки
-          echo "Using DATABASE_URL: $DATABASE_URL"
-          alembic upgrade head
-
-#      - name: Run tests
-#        run: |
-#          pip install pytest pytest-cov
-#          pytest --cov=. --cov-report=xml -v
+        run: alembic upgrade head
