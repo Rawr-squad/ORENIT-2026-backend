@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean, DateT
 from datetime import datetime
 import enum
 
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import relationship
 
 from app.core.db import Base
@@ -132,6 +133,7 @@ class Task(Base):
     question = Column(Text)
     correct_answer = Column(Text, nullable=True)
     coins = Column(Integer, default=0)
+    options = Column(JSON, nullable=True)
 
 
 class Attempt(Base):
