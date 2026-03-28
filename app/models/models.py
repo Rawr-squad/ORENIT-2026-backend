@@ -93,7 +93,7 @@ class Course(Base):
 class Module(Base):
     __tablename__ = "modules"
     id = Column(Integer, primary_key=True)
-    Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"))
+    course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"))
     title = Column(String)
     order = Column(Integer)
 
