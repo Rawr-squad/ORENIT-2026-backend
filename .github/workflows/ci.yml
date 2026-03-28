@@ -37,17 +37,9 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Create .env file
         run: |
-          cat << EOF > .env
-          DATABASE_URL=$DATABASE_URL
-          SECRET=$SECRET
-          POSTGRES_USER=postgres
-          POSTGRES_PASSWORD=postgres
-          POSTGRES_DB=test_db
-          EOF
+          pip install -r requirements.txt
+          pip install psycopg2-binary
 
       - name: Wait for PostgreSQL
         run: |
@@ -60,16 +52,32 @@ jobs:
             sleep 5
           done
 
+      - name: Create .env file for CI
+        run: |
+          cat << EOF > .env
+          DATABASE_URL=postgresql://postgres:postgres@localhost:5432/test_db
+          SECRET=$SECRET
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_DB=test_db
+          EOF
+          
+          # Проверяем содержимое .env
+          cat .env
+
       - name: Initialize alembic if needed
         run: |
           if [ ! -d "alembic" ] && [ ! -d "migrations" ]; then
-            alembic init migrations
+            alembic init -t async migrations
           fi
 
       - name: Run migrations
-        run: alembic upgrade head
+        run: |
+          # Выводим DATABASE_URL для отладки
+          echo "Using DATABASE_URL: $DATABASE_URL"
+          alembic upgrade head --verbose
 
 #      - name: Run tests
 #        run: |
 #          pip install pytest pytest-cov
-#          pytest --cov=. --cov-report=xml
+#          pytest --cov=. --cov-report=xml -v
