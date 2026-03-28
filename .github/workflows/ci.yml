@@ -15,7 +15,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
+          POSTGRES_DB: postgres  # Сначала создаем стандартную БД
         ports:
           - 5432:5432
         options: >-
@@ -25,7 +25,7 @@ jobs:
           --health-retries=5
 
     env:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/test_db
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/edu
       SECRET: testsecret
 
     steps:
@@ -41,21 +41,8 @@ jobs:
 
       - name: Add db to hosts
         run: |
-          # Добавляем запись в /etc/hosts, чтобы db указывал на localhost
           echo "127.0.0.1 db" | sudo tee -a /etc/hosts
-          # Проверяем, что теперь db резолвится
           ping -c 1 db
-
-      - name: Create .env file
-        run: |
-          cat << EOF > .env
-          DATABASE_URL=$DATABASE_URL
-          SECRET=$SECRET
-          POSTGRES_USER=postgres
-          POSTGRES_PASSWORD=postgres
-          POSTGRES_DB=test_db
-          EOF
-          cat .env
 
       - name: Wait for PostgreSQL
         run: |
@@ -68,6 +55,24 @@ jobs:
             sleep 5
           done
 
+      - name: Create edu database
+        run: |
+          # Создаем базу данных edu
+          PGPASSWORD=postgres psql -U postgres -h localhost -c "CREATE DATABASE edu;"
+          # Проверяем, что база создана
+          PGPASSWORD=postgres psql -U postgres -h localhost -c "\l" | grep edu
+
+      - name: Create .env file
+        run: |
+          cat << EOF > .env
+          DATABASE_URL=$DATABASE_URL
+          SECRET=$SECRET
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_DB=edu
+          EOF
+          cat .env
+
       - name: Initialize alembic if needed
         run: |
           if [ ! -d "alembic" ] && [ ! -d "migrations" ]; then
@@ -76,3 +81,8 @@ jobs:
 
       - name: Run migrations
         run: alembic upgrade head
+
+      - name: Run tests
+        run: |
+          pip install pytest pytest-cov
+          pytest --cov=. --cov-report=xml -v
