@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.db import Base, engine
+from app.core.logs import setup_logging
+from app.core.middleware import log_requests
 from app.routers import auth, courses, lessons, tasks, parent_child, \
     admin_courses, admin_modules, admin_lessons, admin_tasks, \
     admin_attempts, progress, admin_achievements, achievements, \
@@ -17,6 +19,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+setup_logging()
+
+app.middleware("http")(log_requests)
 
 
 # routers
