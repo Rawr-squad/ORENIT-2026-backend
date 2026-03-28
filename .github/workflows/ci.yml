@@ -75,7 +75,7 @@ jobs:
         run: |
           # Выводим DATABASE_URL для отладки
           echo "Using DATABASE_URL: $DATABASE_URL"
-          alembic upgrade head --verbose
+          alembic upgrade head
 
 #      - name: Run tests
 #        run: |
