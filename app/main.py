@@ -8,7 +8,7 @@ from app.routers import auth, courses, lessons, tasks, parent_child, \
     admin_courses, admin_modules, admin_lessons, admin_tasks, \
     admin_attempts, progress, admin_achievements, achievements, \
     shop, admin_shop, modules, comments, recommendations, \
-    analytics, reward, chat
+    analytics, reward, chat, healthcheck
 
 app = FastAPI(title="Edu Platform")
 
@@ -47,6 +47,7 @@ app.include_router(recommendations.router)
 app.include_router(analytics.router)
 app.include_router(reward.router)
 app.include_router(chat.router)
+app.include_router(healthcheck.router)
 
 #alembic revision --autogenerate -m "Initial migration"
 #alembic upgrade head
