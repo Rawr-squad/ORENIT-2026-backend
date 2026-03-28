@@ -31,6 +31,6 @@ class AuthService:
         user = self.db.query(User).filter_by(email=email).first()
 
         if not user or not verify_password(password, user.password_hash):
-            raise Exception("Invalid")
+            raise HTTPException(400, "Invalid Password")
 
         return {"access_token": create_access_token(user.id)}

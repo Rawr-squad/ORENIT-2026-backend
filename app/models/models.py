@@ -93,7 +93,7 @@ class Course(Base):
 class Module(Base):
     __tablename__ = "modules"
     id = Column(Integer, primary_key=True)
-    course_id = Column(Integer, ForeignKey("courses.id"))
+    Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"))
     title = Column(String)
     order = Column(Integer)
 
@@ -101,7 +101,7 @@ class Module(Base):
 class Lesson(Base):
     __tablename__ = "lessons"
     id = Column(Integer, primary_key=True)
-    module_id = Column(Integer, ForeignKey("modules.id"))
+    module_id = Column(Integer, ForeignKey("modules.id", ondelete="CASCADE"))
     title = Column(String)
     theory_content = Column(Text)
     order = Column(Integer)
@@ -112,9 +112,9 @@ class Comment(Base):
     id = Column(Integer, primary_key=True)
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    lesson_id = Column(Integer, ForeignKey("lessons.id"), nullable=False)
+    lesson_id = Column(Integer, ForeignKey("lessons.id", ondelete="CASCADE"))
 
-    parent_id = Column(Integer, ForeignKey("comments.id"), nullable=True)
+    parent_id = Column(Integer, ForeignKey("comments.id", ondelete="CASCADE"))
 
     content = Column(String, nullable=False)
 
@@ -127,7 +127,7 @@ class Comment(Base):
 class Task(Base):
     __tablename__ = "tasks"
     id = Column(Integer, primary_key=True)
-    lesson_id = Column(Integer, ForeignKey("lessons.id"))
+    lesson_id = Column(Integer, ForeignKey("lessons.id", ondelete="CASCADE"))
     type = Column(Enum(TaskType))
     question = Column(Text)
     correct_answer = Column(Text, nullable=True)
@@ -138,7 +138,7 @@ class Attempt(Base):
     __tablename__ = "attempts"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    task_id = Column(Integer, ForeignKey("tasks.id"))
+    task_id = Column(Integer, ForeignKey("tasks.id", ondelete="CASCADE"))
     answer = Column(Text)
     is_correct = Column(Boolean, nullable=True)
     status = Column(Enum(AttemptStatus))
@@ -152,7 +152,7 @@ class Progress(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    lesson_id = Column(Integer, ForeignKey("lessons.id"))
+    lesson_id = Column(Integer, ForeignKey("lessons.id", ondelete="CASCADE"))
     status = Column(Enum(ProgressStatus), default=ProgressStatus.started)
 
 class Currency(Base):
