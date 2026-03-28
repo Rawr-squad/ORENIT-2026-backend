@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.core.db import get_db
-from app.models.models import Progress, Currency, ParentChild, User
+from app.models.models import Progress, Currency, ParentChild, User, UserAchievement
 from app.core.dependencies import get_current_user
 from app.schemas.progress import StartLessonRequest
 from app.services.progress import ProgressService
@@ -54,18 +54,35 @@ def my_progress(user=Depends(get_current_user), db: Session = Depends(get_db)):
     }
 
 
+from sqlalchemy import func
+
+
 @router.get("/leaderboard")
 def leaderboard(db: Session = Depends(get_db)):
-
-    results = db.query(Currency, User).join(
-        User, User.id == Currency.user_id
-    ).order_by(Currency.xp.desc()).limit(10).all()
+    results = (
+        db.query(
+            User,
+            Currency.xp,
+            Currency.coins,
+            func.count(UserAchievement.user_id).label("achievements_count")
+        )
+        .join(Currency, User.id == Currency.user_id)
+        .outerjoin(UserAchievement, UserAchievement.user_id == User.id)
+        .group_by(User.id, Currency.xp, Currency.coins)
+        .order_by(Currency.xp.desc())
+        .limit(10)
+        .all()
+    )
 
     return [
         {
             "user_id": user.id,
             "nickname": user.nickname,
-            "xp": currency.xp
+            "nickname_color" : user.nickname_color,
+            "status_title" : user.status_title,
+            "xp": xp,
+            "coins": coins,
+            "achievements_count": achievements_count,
         }
-        for currency, user in results
+        for user, xp, coins, achievements_count in results
     ]
