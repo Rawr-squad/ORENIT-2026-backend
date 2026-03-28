@@ -39,9 +39,37 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run migrations
+      - name: Create .env file
         run: |
-          alembic upgrade head
+          cat << EOF > .env
+          DATABASE_URL=$DATABASE_URL
+          SECRET=$SECRET
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_DB=test_db
+          EOF
+
+      - name: Wait for PostgreSQL
+        run: |
+          for i in {1..10}; do
+            if pg_isready -U postgres -h localhost -p 5432; then
+              echo "PostgreSQL is ready"
+              break
+            fi
+            echo "Waiting for PostgreSQL... $i"
+            sleep 5
+          done
+
+      - name: Initialize alembic if needed
+        run: |
+          if [ ! -d "alembic" ] && [ ! -d "migrations" ]; then
+            alembic init migrations
+          fi
+
+      - name: Run migrations
+        run: alembic upgrade head
 
 #      - name: Run tests
-#        run: pytest
+#        run: |
+#          pip install pytest pytest-cov
+#          pytest --cov=. --cov-report=xml
